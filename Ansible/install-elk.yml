@@ -1,0 +1,43 @@
+---
+
+  - hosts: elk
+    become: True
+    tasks:
+
+
+    - name: Install docker image for running containers
+      apt:
+        update_cache: yes
+        force_apt_get: yes
+        name: docker.io
+        state: present
+    - name: Install Python
+      apt:
+        force_apt_get: yes
+        name: python3-pip
+        state: present
+    - name: Python Docker
+      pip:
+        name: docker
+        state: present
+
+    - name: Increase Virtual Memory
+      sysctl:
+        name: vm.max_map_count
+        value: 262144
+        state: present
+        reload: yes
+
+
+    - name: Pull docker image
+      docker_container:
+        name: elk
+        image: sebp/elk:761
+        state: started
+        restart: yes
+        published_ports: 5601:5601,9200:9200,5044:5044
+        restart_policy: always
+    - name: Make sure docker is running
+      systemd:
+        name: docker
+        state: started

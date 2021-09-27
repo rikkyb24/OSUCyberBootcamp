@@ -1,0 +1,31 @@
+---
+
+  - name: Config Web VM with docker
+    hosts: webservers
+    become: true
+    tasks:
+
+
+    - name: Install docker.io...
+      apt:
+        update_cache: yes
+        name: docker.io
+        state: present
+    - name: Install python
+      apt:
+        name: python3-pip
+        state: present
+    - name: Install docker...
+      pip:
+        name: docker
+        state: present
+    - name: Installing DVWA Container
+      docker_container:
+        name: DVWA
+        image: cyberxsecurity/dvwa
+        published_ports: 80:80
+        restart_policy: always
+    - name: Start on Start
+      systemd:
+        name: docker
+        enabled: yes
